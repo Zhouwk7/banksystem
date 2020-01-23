@@ -72,5 +72,6 @@ int main() {
 	s0.show();
 	s1.show();
 	system("pause");
+	printf("hello world!");
 	return 0;
 }
