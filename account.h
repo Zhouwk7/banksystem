@@ -1,21 +1,22 @@
 #ifndef ACCOUNT_H
 #define ACCOUNT_H
 #include<iostream>
+#include "date.h"
 class SavingAccount {
 private:
-	int id;
+	std::string id;
 	double balance;
 	double rate;
-	int lastDate;
+	Date lastDate;
 	double accumulation;
 	static double total;
-	void record(int date, double amount);
-	double accumulate(int date) const {
-		return accumulation + (date - lastDate) * balance;
+	void record(const Date& date, double amount, std::string desc);
+	double accumulate(const Date& date) const {
+		return accumulation + date.distance(lastDate) * balance;
 	};
 public:
-	SavingAccount(int date, int id, double rate);
-	int getId() const {
+	SavingAccount(const Date& date, const std::string id, const double rate);
+	std::string getId() const {
 		return id;
 	}
 	double getBalance() const {
@@ -28,9 +29,9 @@ public:
 		return total;
 	}
 	void show() const;
-	void deposit(int date, double amount);
-	void withdraw(int date, double amount);
-	void settle(int date);
+	void deposit(const Date& date, double amount, const std::string desc);
+	void withdraw(const Date& date, double amount, const std::string desc);
+	void settle(const Date& date);
 };
 #endif
 

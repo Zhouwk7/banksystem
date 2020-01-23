@@ -1,22 +1,25 @@
 #include<iostream>
 #include "account.h"
-using namespace std;
+//using namespace std;
 
 
 int main() {
-	SavingAccount s0(1, 10001, 0.015);
-	SavingAccount s1(1, 10002, 0.015);
+	Date date(2018, 11, 5);
+	SavingAccount accounts[] = {
+		SavingAccount(date, "s0001", 0.015),
+		SavingAccount(date, "s0002", 0.015) };
+	const int n = sizeof(accounts) / sizeof(SavingAccount);
+	accounts[0].deposit(Date(2018, 11, 5), 5000, "salary");
+	accounts[1].deposit(Date(2018, 11, 25), 10000, "sell the stock 0330");
+	accounts[0].deposit(Date(2018, 12, 5), 5500, "salary");
+	accounts[1].withdraw(Date(2018, 12, 20), 4000, "buy a laptop");
 
-	s0.deposit(5, 5000);
-	s1.deposit(25, 10000);
-	s0.deposit(45, 5500);
-	s1.withdraw(60, 4000);
-	s0.settle(90);
-	s1.settle(90);
-	s0.show();
-	s1.show();
-	double totalMoney = SavingAccount::getTotal();
-	cout << "totalMoney: " << totalMoney << endl;
+	for (int i = 0; i < n; i++) {
+		accounts[i].settle(Date(2019, 1, 1));
+		accounts[i].show();
+		std::cout << std::endl;
+	}
+	std::cout << "totalMoney: " << SavingAccount::getTotal() << std::endl;
 	system("pause");
 	return 0;
 }
