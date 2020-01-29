@@ -11,13 +11,12 @@ public:
 	int getYear() const { return year; }
 	int getMonth() const { return month; }
 	int getDay() const { return day; }
-	int getMaxDay() const;
-	bool isLeapYear() const {
-		return year % 4 == 0 && year / 100 != 0 || year % 400 == 0;
-	}
-	void show() const;
-	int distance(const Date& date) const {
+	bool isLeapYear() const;
+	int getMaxDays() const;
+	int getTotalDays() const { return totalDays; }
+	int operator-(const Date& date) const{
 		return totalDays - date.totalDays;
 	}
+	void show() const;
 };
-#endif // !DATE_H
+#endif

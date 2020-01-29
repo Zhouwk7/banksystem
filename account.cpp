@@ -1,77 +1,79 @@
 #include "account.h"
-#include <iostream>
-using namespace std;
-// 银行账号基类定义
-double Account::total = 0; // 定义时不需要 static 声明
-Account::Account(const Date &date, const std::string &id) : id(id), balance(0) {
+// Account 银行账户基类
+double Account::total = 0;
+
+Account::Account(const Date& date, const std::string& id) :id(id), balance(0) {
 	date.show();
-	cout << "\t#" << id << "\tis created!" << endl;
+	std::cout << "\t#" << id << "\t is created!" << std::endl;
 }
-void Account::record(const Date &date, double amount, const std::string &desc) {
+
+void Account::record(const Date& date, double amount, const std::string& desc) {
 	amount = floor(amount * 100 + 0.5) / 100;
 	balance += amount;
 	total += amount;
 	date.show();
-	cout << "\t#" << id << "\t" << amount << "\t" << balance << "\t" << desc << endl;
+	std::cout << "\t#" << id << "\t" << amount << "\t" << balance << "\t" << desc << std::endl;
 }
-void Account::show() const {
-	cout << "#" << id << "\tBalance:" << balance;
+void Account::error(const std::string& msg) const {
+	std::cout << "error(#" << id << "):" << msg << std::endl;
 }
 
-// 储蓄账号方法定义
-SavingsAccount::SavingsAccount(const Date &date, const std::string &id, const double rate) :
-	Account(date,id), acc(date, 0), rate(rate) {}
-void SavingsAccount::deposit(const Date &date, double amount, const std::string &desc) {
+// SavingsAccount
+SavingsAccount::SavingsAccount(const Date& date, const std::string& id, double rate) : 
+	Account(date,id), acc(date,0),rate(rate){
+}
+void SavingsAccount::deposit(const Date& date, double amount, const std::string& desc) {	
 	record(date, amount, desc);
 	acc.change(date, getBalance());
 }
-void SavingsAccount::withdraw(const Date &date, double amount, const std::string &desc) {
-	if (getBalance() < amount) {
-		// cout << "Error: not enough money!" << endl;
-		error("not enough money!");
+void SavingsAccount::withdraw(const Date& date, double amount, const std::string& desc) {
+	if (amount > getBalance()) {
+		error("Not enough money!");
+		exit(1);
 	}
-	else {
-		record(date, -amount, desc);
-		acc.change(date, getBalance());
-	}
+	record(date, -amount, desc);
+	acc.change(date, getBalance());
 }
-void SavingsAccount::settle(const Date &date) {
-	// double interest = acc.getSum(date) * rate / 365;
+void SavingsAccount::settle(const Date& date) {
 	double interest = acc.getSum(date) * rate / 
-		date.distance(Date(date.getYear()-1,1,1));
-	if (interest) {
+		(date - Date(date.getYear() - 1, date.getMonth(), date.getDay()));
+	if (interest && date.getMonth()==1) {
 		record(date, interest, "interest");
+		acc.rest(date, getBalance());
 	}
-	acc.rest(date, getBalance());
+	
+}
+void SavingsAccount::show() const {
+	std::cout << getId() << "\tbalance: " << getBalance() << std::endl;
 }
 
-// 信用卡账号方法定义
-CreditAccount::CreditAccount(const Date& date, const std::string& id,
-	double credit, double rate, double fee) : Account(date, id),
-	acc(date,0), credit(credit), rate(rate), fee(fee){ }
+// CreditAccount
+
 void CreditAccount::deposit(const Date& date, double amount, const std::string& desc) {
 	record(date, amount, desc);
-	acc.change(date, getDebt());
+	acc.change(date, getDebt()); // 信用卡利息为负，不应该使用getBalance()
 }
 void CreditAccount::withdraw(const Date& date, double amount, const std::string& desc) {
-	if (amount - getBalance() > credit) {
-		error("not enough money!");
+	if (credit < amount - getBalance()) { // 信用卡为正时，可用的金额大于 credit
+		error("Not enough credit!");
+		exit(1);
 	}
-	else {
-		record(date, -amount, desc);
-		acc.change(date, getDebt());
+	record(date, -amount, desc);
+	acc.change(date, getDebt());
+}
+void CreditAccount::settle(const Date& date) {// 每月结算一次
+	double interest = acc.getSum(date) * rate; // 按日累计利息，已经为负
+	if (date.getDay() == 1) {
+		if (interest) {
+			record(date, interest, "interest");
+		}
+		if (date.getMonth() == 1) {
+			record(date, -fee, "annual fee!");
+		}
+		acc.rest(date, getDebt());
 	}
 }
-void CreditAccount::settle(const Date& date){
-	double interest = acc.getSum(date) * rate;
-	if(interest) record(date, interest, "interest");
-	if (date.getMonth() == 1) {
-		record(date, -fee, "annual fee");
-	}
-	acc.rest(date, getDebt());
-}
-void CreditAccount::show() const {
-	Account::show();
-	cout << "\tAvailable credit: " << getAvaliableCredit() << endl;
+void CreditAccount::show() const { // 常函数只能调用常函数方法
+	std::cout << getId() << "\tBalance: " << getBalance() << "\t Available credit: "<< getAvailableCredit() << std::endl;
 }
 
