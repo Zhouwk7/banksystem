@@ -1,32 +1,29 @@
-#include <iostream>
-#include <string>
-#include "array.h"
+#include<iostream>
+#include<vector>
+#include<algorithm>
+#include<string>
 #include "account.h"
 using namespace std;
+struct deleter {
+	template<class T>
+	void operator() (T* p) {
+		delete p;
+	}
+};
 int main() {
 	Date date(2008, 11, 1);
-	//SavingsAccount sa1(date, "s00001", 0.015);
-	//SavingsAccount sa2(date, "s00002", 0.015);
-	//CreditAccount ca1(date, "c00001", 0.0005, 10000, 50);
-	//Account* accounts[] = { &sa1, &sa2, &ca1 };
-	//const int n = sizeof(accounts) / sizeof(Account*); // 指针类型的个数
-	Array<Account*> accounts(0);
-	cout << "(a)-add acount,(d)-deposit,(w)-withdraw,(s)-show,(c)-change day,(n)-next month,(e)-eixt" << endl;
+	vector<Account*> accounts;
+	cout << "(a)-add account,(d)-deposit,(w)-withdraw,(s)-show,(c)-change day,(n)-next month,(q)-query,(e)-exit" << endl;
 	char cmd;
 	do {
 		date.show();
-		cout << "\ttotal:\t" << Account::getTotal() << "\tcommond>";
-		int index, day; // 索引账号
-		double amount;	// 存取款总额
-		string desc;	// 描述信息
-		int i;
+		cout << "\tTotal: " << Account::getTotal() << "\tcommand>";
 		char type;
-		string id;
-		double rate;
-		double credit;
-		double fee;
+		int index, day;
+		double amount, credit, rate, fee;
+		string id, desc;
 		Account* account;
-		
+		Date date1, date2;
 		cin >> cmd;
 		switch (cmd) {
 		case 'a':
@@ -39,12 +36,11 @@ int main() {
 				cin >> credit >> rate >> fee;
 				account = new CreditAccount(date, id, rate, credit, fee);
 			}
-			accounts.reSize(accounts.getSize() + 1);
-			accounts[accounts.getSize() - 1] = account;
+			accounts.push_back(account);
 			break;
 		case 'd':
 			cin >> index >> amount;
-			getline(cin, desc);
+			getline(cin, desc); // string 头文件中定义
 			accounts[index]->deposit(date, amount, desc);
 			break;
 		case 'w':
@@ -53,24 +49,23 @@ int main() {
 			accounts[index]->withdraw(date, amount, desc);
 			break;
 		case 's':
-			for (i = 0; i < accounts.getSize(); ++i) {
+			for (size_t i = 0; i < accounts.size(); i++) {
 				cout << "[" << i << "]";
 				accounts[i]->show();
 				cout << endl;
 			}
-				break;
+			break;
 		case 'c':
 			cin >> day;
 			if (day < date.getDay()) {
-				cout << "You cannot specify a previous day!" << endl;
+				cout << "You cannot specify a previous day";
 			}
 			else if (day > date.getMaxDays()) {
-				cout << "Invailable day!" << endl;
+				cout << "Invalid day";
 			}
 			else {
 				date = Date(date.getYear(), date.getMonth(), day);
-			}
-			break;
+				break;
 		case 'n':
 			if (date.getMonth() == 12) {
 				date = Date(date.getYear() + 1, 1, 1);
@@ -78,14 +73,17 @@ int main() {
 			else {
 				date = Date(date.getYear(), date.getMonth() + 1, 1);
 			}
-			for (i = 0; i < accounts.getSize(); i++) {
-				accounts[i]->settle(date);
-				cout << endl;
+			for (vector<Account*>::iterator iter = accounts.begin(); iter != accounts.end(); iter++) {
+				(*iter)->settle(date);
 			}
 			break;
+		case 'q':
+			date1 = Date::read();
+			date2 = Date::read();
+			Account::query(date1, date2);
+			break;
+			}
 		}
-	}while (cmd != 'e');
-	system("pause");
-	return 0;
+	} while (cmd != 'e');
+	for_each(accounts.begin(), accounts.end(), deleter());
 }
-
