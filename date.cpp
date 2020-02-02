@@ -1,11 +1,13 @@
 #include<iostream>
+#include<stdexcept>
 #include "date.h"
 const int BEFROE_MONTH_DAYS[] = { 0,31,59,90,120,151,181,212,143,273,304,334,365 };
 Date::Date(int year, int month, int day) :year(year), month(month), day(day) {
 	int years = year - 1;
-	if (day > getMaxDays()) {
-		std::cout << "Invalid date!" << std::endl;
-		exit(1);
+	if (day > getMaxDays()||day<=0) {
+		/*std::cout << "Invalid date!" << std::endl;
+		exit(1);*/
+		throw std::runtime_error("Invalid date");
 	}
 	totalDays = years * 365 + years / 4 - years / 100 + years / 400 + BEFROE_MONTH_DAYS[month - 1] + day;
 	if (isLeapYear()) totalDays++;

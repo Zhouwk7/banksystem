@@ -3,6 +3,7 @@
 #include <iostream>
 #include <map>
 #include <string>
+#include <stdexcept>
 #include "accumulator.h"
 #include "date.h"
 using namespace std::rel_ops; // >= ==模板函数生成
@@ -10,6 +11,17 @@ class Account;
 //class AccountRecord;
 //typedef std::multimap<Date, AccountRecord> RecordMap;
 
+
+//using namespace std;
+// AccountRecord 类
+
+class AccountException :public std::runtime_error {
+private:
+	const Account* account;
+public:
+	AccountException(const Account* account, const std::string& msg) :runtime_error(msg), account(account) {}
+	const Account* getAccount() const { return account; }
+};
 
 class AccountRecord {
 private:

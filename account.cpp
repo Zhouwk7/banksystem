@@ -28,7 +28,8 @@ void Account::record(const Date& date, double amount, const std::string& desc) {
 	recordMap.insert(recordMap.end(), std::pair<Date, AccountRecord>(date, AccountRecord(date,this,amount,getBalance(),desc)));
 }
 void Account::error(const std::string& msg) const {
-	std::cout << "error(#" << id << "):" << msg << std::endl;
+	//std::cout << "error(#" << id << "):" << msg << std::endl;
+	throw AccountException(this, msg);
 }
 
 void Account::show(std::ostream& out) const {
