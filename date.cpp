@@ -14,13 +14,25 @@ int Date::getMaxDays() const {
 	return BEFROE_MONTH_DAYS[month] - BEFROE_MONTH_DAYS[month - 1];
 }
 
-Date Date::read() {
-	char c;
-	int year, month, day;
-	std::cin >> year >> c >> month >> c >> day;
-	return Date(year, month, day);
-}
+//Date Date::read() {
+//	char c;
+//	int year, month, day;
+//	std::cin >> year >> c >> month >> c >> day;
+//	return Date(year, month, day);
+//}
 
 void Date::show() const {
 	std::cout << year << "-" << month << "-" << day;
+}
+
+std::istream& operator>>(std::istream& in, Date& date) {
+	int year, month, day;
+	char c1, c2;
+	in >> year >> c1 >> month >> c2 >> day;
+	date = Date(year, month, day);
+	return in;
+}
+std::ostream& operator<<(std::ostream& out, const Date& date) {
+	out << date.getYear() << "-" << date.getMonth() << "-" << date.getDay();
+	return out;
 }

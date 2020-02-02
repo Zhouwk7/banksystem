@@ -7,8 +7,7 @@
 AccountRecord::AccountRecord(const Date& date, const Account* account, double amount, double balance, const std::string desc):
 	date(date), account(account), amount(amount),balance(balance),desc(desc){ }
 void AccountRecord::show() const {
-	date.show();
-	std::cout << "\t#" << account->getId() << "\t" << amount << "\t" << balance << "\t" << desc << std::endl;
+	std::cout << date << "\t#" << account->getId() << "\t" << amount << "\t" << balance << "\t" << desc << std::endl;
 }
 
 
@@ -17,20 +16,23 @@ double Account::total = 0;		// 静态属性定义
 RecordMap Account::recordMap;	
 
 Account::Account(const Date& date, const std::string& id) :id(id), balance(0) {
-	date.show();
-	std::cout << "\t#" << id << "\t is created!" << std::endl;
+	std::cout << date << "\t#" << id << "\t is created!" << std::endl;
 }
 
 void Account::record(const Date& date, double amount, const std::string& desc) {
 	amount = floor(amount * 100 + 0.5) / 100;
 	balance += amount;
 	total += amount;
-	/*date.show();
-	std::cout << "\t#" << id << "\t" << amount << "\t" << balance << "\t" << desc << std::endl;*/
+	/*date.show();*/
+	std::cout << date << "\t#" << id << "\t" << amount << "\t" << balance << "\t" << desc << std::endl;
 	recordMap.insert(recordMap.end(), std::pair<Date, AccountRecord>(date, AccountRecord(date,this,amount,getBalance(),desc)));
 }
 void Account::error(const std::string& msg) const {
 	std::cout << "error(#" << id << "):" << msg << std::endl;
+}
+
+void Account::show(std::ostream& out) const {
+	out << getId() << "\tbalance: " << getBalance() << std::endl;
 }
 
 void Account::query(const Date& begin, const Date& end) {
@@ -68,9 +70,9 @@ void SavingsAccount::settle(const Date& date) {
 	}
 	
 }
-void SavingsAccount::show() const {
-	std::cout << getId() << "\tbalance: " << getBalance() << std::endl;
-}
+//void SavingsAccount::show() const {
+//	std::cout << getId() << "\tbalance: " << getBalance() << std::endl;
+//}
 
 // CreditAccount
 
@@ -79,7 +81,7 @@ void CreditAccount::deposit(const Date& date, double amount, const std::string& 
 	acc.change(date, getDebt()); // 信用卡利息为负，不应该使用getBalance()
 }
 void CreditAccount::withdraw(const Date& date, double amount, const std::string& desc) {
-	std::cout << "credit" << credit << ",amount" << amount << ",balance" << getBalance() << std::endl;
+	//	std::cout << "credit" << credit << ",amount" << amount << ",balance" << getBalance() << std::endl;
 	if (credit < amount - getBalance()) { // 信用卡为正时，可用的金额大于 credit
 		error("Not enough credit!");
 		exit(1);
@@ -99,7 +101,8 @@ void CreditAccount::settle(const Date& date) {// 每月结算一次
 		acc.rest(date, getDebt());
 	}
 }
-void CreditAccount::show() const { // 常函数只能调用常函数方法
-	std::cout << getId() << "\tBalance: " << getBalance() << "\t Available credit: "<< getAvailableCredit() << std::endl;
+void CreditAccount::show(std::ostream& out) const { // 常函数只能调用常函数方法
+	Account::show(out);
+	out << "\t Available credit: "<< getAvailableCredit();
 }
 

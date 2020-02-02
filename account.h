@@ -47,9 +47,13 @@ public:
 	virtual void deposit(const Date& date, double amount, const std::string& desc) = 0;
 	virtual void withdraw(const Date& date, double amount, const std::string& desc) = 0;
 	virtual void settle(const Date& date) = 0;
-	virtual void show() const = 0;
+	virtual void show(std::ostream& out) const; // 不是纯虚函数
 	static void query(const Date& begin, const Date& end);
 };
+inline std::ostream& operator<<(std::ostream& out, const Account& account) {
+	account.show(out);
+	return out;
+}
 
 
 class SavingsAccount : public Account{
@@ -64,7 +68,7 @@ public:
 	void deposit(const Date& date, double amount, const std::string& desc);
 	void withdraw(const Date& date, double amount, const std::string& desc);
 	void settle(const Date& date);
-	void show() const;
+	//void show() const;
 };
 
 // 信用卡账号类
@@ -87,7 +91,7 @@ public:
 	void deposit(const Date& date, double amount, const std::string& desc);
 	void withdraw(const Date& date, double amount, const std::string& desc);
 	void settle(const Date& date);
-	void show() const;
+	void show(std::ostream& out) const;
 };
 
 #endif

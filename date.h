@@ -1,5 +1,6 @@
 #ifndef DATE_H
 #define DATE_H
+#include <iostream>
 class Date{
 private:
 	int year;
@@ -17,11 +18,14 @@ public:
 	int operator-(const Date& date) const {
 		return totalDays - date.totalDays;
 	}
-	static Date read();
+	
 	bool operator<(const Date& date) const {
 		return totalDays < date.totalDays;
 	}
+	//static Date read();
 	void show() const;
 };
+std::istream& operator>>(std::istream& in, Date& date);
+std::ostream& operator<<(std::ostream& out, const Date& date);
 
 #endif
